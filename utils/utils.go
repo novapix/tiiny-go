@@ -1,31 +1,36 @@
 package utils
 
 import (
+	"context"
+	"fmt"
 	"math/rand"
-	"os"
 	"strconv"
+	"tiiny-go/config"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var (
-	keyLength int
-	rng       *rand.Rand // local RNG, not global
+	keyLength   int
+	rng         *rand.Rand
+	redisClient *redis.Client
+	ctx         = context.Background()
+	cfg         *config.Config
 )
 
 func init() {
-	lengthStr := os.Getenv("DEFAULT_KEY_LENGTH")
-	if lengthStr == "" {
-		keyLength = 8
-	} else {
-		l, err := strconv.Atoi(lengthStr)
-		if err != nil {
-			keyLength = 8
-		} else {
-			keyLength = l
-		}
-	}
+	cfg = config.LoadConfig()
+	keyLength = cfg.DefaultKeyLength
 
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	opt, err := redis.ParseURL(cfg.RedisURL)
+	if err != nil {
+		panic(fmt.Sprintf("Invalid REDIS_URL: %v", err))
+	}
+
+	redisClient = redis.NewClient(opt)
 }
 
 func GenerateKey() string {
@@ -38,8 +43,17 @@ func GenerateKey() string {
 }
 
 func GenerateDomainName(hostname string, port int) string {
-	if domain := os.Getenv("PUBLIC_URL"); domain != "" {
+	if domain := cfg.PublicURL; domain != "" {
 		return domain
 	}
 	return hostname + ":" + strconv.Itoa(port) // dev fallback
+}
+
+func SaveURL(key string, url string) error {
+	ttl := 30 * 24 * time.Hour // 30 days
+	return redisClient.Set(ctx, key, url, ttl).Err()
+}
+
+func GetURL(key string) (string, error) {
+	return redisClient.Get(ctx, key).Result()
 }
