@@ -63,6 +63,7 @@ $('#form').on('submit', function (e) {
         payload.key = key_input_element.val().trim();
     }
 
+
     $.ajax({
         method: 'POST',
         url: '/shorten',
@@ -118,7 +119,7 @@ toggle.addEventListener('click', () => {
 
 /* ---------- Copy ---------- */
 
-function copy_url() {
+function copyURL() {
     const input = url_show_element[0];
     input.focus();
     input.select();
@@ -133,7 +134,7 @@ function copy_url() {
 
 /* ---------- Reset ---------- */
 
-function reset() {
+function resetForm() {
     showcase.hide().addClass('d-none');
     $('#form').show();
 
