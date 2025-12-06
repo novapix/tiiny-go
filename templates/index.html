@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>{{.WebsiteName}}</title>
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/img/favicons/apple-touch-icon.png">
+    <link rel="icon" sizes="16x16" href="/static/img/favicons/favicon-16x16.png">
+    <link rel="icon" sizes="32x32" href="/static/img/favicons/favicon-32x32.png">
+    <link rel="icon" sizes="192x192" href="/static/img/favicons/android-chrome-192x192.png">
+    <link rel="icon" sizes="512x512" href="/static/img/favicons/android-chrome-512x512.png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Josefin+Sans&amp;display=swap">
+    <link rel="stylesheet" href="/static/css/styles.css">
+
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: "Josefin Sans", sans-serif;
+            font-size: 1.5rem;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        body.light {
+            --color-grey: #293b49;
+            --color-white: #ffffff;
+            background: #ffffff;
+            color: var(--color-grey);
+        }
+
+        body.dark {
+            --color-grey: #ffffff;
+            --color-white: #333333;
+            background: #121212;
+            color: var(--color-grey);
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        #typewriter {
+            display: inline;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-wrapper">
+
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-8 text-center">
+
+                        <img id="mode-toggle" src="/static/img/dark-mode-icon.svg"
+                            style="width:32px;cursor:pointer;margin-bottom:40px;" />
+
+                        <h1 class="fw-bolder">
+                            A simple link but a powerful tool <br>
+                            for <span id="typewriter" class="text-danger">programmers.</span>
+                        </h1>
+
+                        <p>
+                            <strong>{{.WebsiteName}}</strong> is a minimal URL shortener —
+                            fast, free, no tracking.
+                        </p>
+
+                        <form id="form">
+                            <div class="mb-3">
+                                <input class="form-control" type="url" placeholder="Enter URL" required>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <div class="col-sm-8 d-flex align-items-center">
+                                    <span class="fw-bold me-1">http://{{.WebsiteDomain}}/</span>
+                                    <input class="form-control form-control-sm w-auto" type="text">
+                                </div>
+                                <div class="col-sm-4 mt-3 mt-sm-0">
+                                    <button class="btn btn-primary w-100" type="submit">
+                                        Make it Tiiny
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="showcase" class="d-none text-center mt-4">
+                            <input type="url" class="form-control mb-3" readonly>
+                            <button class="btn btn-primary mb-2" onclick="copyURL()">Copy</button><br>
+                            <a href="#" onclick="resetForm()">Shorten another URL</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="py-3 text-center small">
+            &copy; <span id="copyright-year"></span> — All rights reserved
+        </footer>
+
+    </div>
+
+
+    <!-- JS -->
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/sweetalert2.min.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/typewriter-effect@latest/dist/core.js"></script>
+    <script src="/static/js/js.cookie.min.js"></script>
+    <script src="/static/js/script.js"></script>
+</body>
+<script>
+    document.getElementById('copyright-year').textContent = new Date().getFullYear();
+</script>
+
+</html>
