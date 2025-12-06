@@ -4,25 +4,41 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
+	"tiiny-go/config"
+	"tiiny-go/store"
 	"tiiny-go/utils"
 	"tiiny-go/validation"
 	"time"
 )
+
+var Store store.URLStore
 
 type ShortenRequest struct {
 	URL string `json:"url"`
 	Key string `json:"key,omitempty"`
 }
 
+func InitializeStore(redisURL string) {
+	Store = store.NewRedisStore(redisURL)
+}
+
+func writeJSONError(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
+}
+
 func ShortenHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		writeJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	var req ShortenRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		writeJSONError(w, http.StatusBadRequest, "Invalid JSON")
 		return
 	}
 
@@ -31,7 +47,7 @@ func ShortenHandler(w http.ResponseWriter, r *http.Request) {
 		URL: req.URL,
 		Key: req.Key,
 	}); err != nil {
-		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
+		writeJSONError(w, http.StatusUnprocessableEntity, err.Error())
 		return
 	}
 
@@ -39,31 +55,56 @@ func ShortenHandler(w http.ResponseWriter, r *http.Request) {
 		req.Key = utils.GenerateKey()
 	}
 
-	err := utils.SaveURL(req.Key, req.URL)
+	err := Store.Save(req.Key, req.URL)
 	if err != nil {
 		log.Println("Error saving URL:", err)
-		http.Error(w, "Failed to save URL", http.StatusInternalServerError)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to save URL")
+		return
+	}
+
+	domain := config.GetConfig().PublicURL
+	port, err := strconv.Atoi(config.GetConfig().Port) // Convert Port to int
+	if err != nil {
+		log.Println("Invalid port in configuration:", err)
+		writeJSONError(w, http.StatusInternalServerError, "Server configuration error")
 		return
 	}
 
 	resp := map[string]string{
-		"short_url": utils.GenerateDomainName(r.Host, 8080) + "/" + req.Key,
+		"short_url": utils.GenerateDomainName(domain, port) + "/" + req.Key,
 		"key":       req.Key,
 		"url":       req.URL,
-		"expires":   time.Now().Add(30 * 24 * time.Hour).Format(time.RFC3339), // optional
+		"expires":   time.Now().Add(30 * 24 * time.Hour).Format(time.RFC3339),
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
-// RedirectHandler redirects to the original URL
 func RedirectHandler(w http.ResponseWriter, r *http.Request) {
-	key := r.URL.Path[1:] // remove leading "/"
+	key := r.URL.Path[1:] // Remove the leading "/"
 
-	url, err := utils.GetURL(key)
+	url, err := Store.Get(key)
 	if err != nil || url == "" {
-		NotFoundHandler(w, r)
+		// If the key is not found, return a 404 error
+		writeJSONError(w, http.StatusNotFound, "Short URL not found")
+		return
+	}
+
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+func RootHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/" {
+		HomeHandler(w, r)
+		return
+	}
+
+	// Otherwise, treat it as a short URL key
+	key := strings.TrimPrefix(r.URL.Path, "/")
+	url, err := Store.Get(key)
+	if err != nil || url == "" {
+		writeJSONError(w, http.StatusNotFound, "Short URL not found")
 		return
 	}
 
