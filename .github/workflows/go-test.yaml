@@ -11,19 +11,14 @@ jobs:
     name: Test and Build
     runs-on: ubuntu-latest
     
-    # Define a matrix to test across different Go versions (good practice)
-    strategy:
-      matrix:
-        go-version: [ '1.20', '1.22' ] # Adjust to your project's supported versions
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go ${{ matrix.go-version }}
+      - name: Set up Go 
         uses: actions/setup-go@v5
         with:
-          go-version: ${{ matrix.go-version }}
           cache: true # Caches Go modules for faster runs
 
       - name: Download Go modules
