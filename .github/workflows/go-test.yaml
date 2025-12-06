@@ -1,0 +1,39 @@
+name: Go Tests and Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test and Build
+    runs-on: ubuntu-latest
+    
+    # Define a matrix to test across different Go versions (good practice)
+    strategy:
+      matrix:
+        go-version: [ '1.20', '1.22' ] # Adjust to your project's supported versions
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache: true # Caches Go modules for faster runs
+
+      - name: Download Go modules
+        # This will download all dependencies listed in go.mod
+        run: go mod download
+
+      - name: Run Tests
+        # Runs all tests in the module, excluding files with build tags
+        run: go test -v ./...
+        
+      - name: Check Build
+        # Ensures the application can be successfully compiled
+        run: go build -v ./...
