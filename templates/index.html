@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>{{.WebsiteName}}</title>
 
+    <!-- Apply theme from localStorage -->
+    <script>
+        const theme = localStorage.getItem('theme') || 'light';
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add(theme);
+        });
+    </script>
+
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/static/img/favicons/apple-touch-icon.png">
     <link rel="icon" sizes="16x16" href="/static/img/favicons/favicon-16x16.png">
@@ -13,60 +21,9 @@
     <link rel="icon" sizes="192x192" href="/static/img/favicons/android-chrome-192x192.png">
     <link rel="icon" sizes="512x512" href="/static/img/favicons/android-chrome-512x512.png">
 
-    <!-- CSS -->
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Josefin+Sans&amp;display=swap">
     <link rel="stylesheet" href="/static/css/styles.css">
-
-
-    <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-        }
-
-        body {
-            font-family: "Josefin Sans", sans-serif;
-            font-size: 1.5rem;
-            transition: background-color 0.25s ease, color 0.25s ease;
-        }
-
-        body.light {
-            --color-grey: #293b49;
-            --color-white: #ffffff;
-            background: #ffffff;
-            color: var(--color-grey);
-        }
-
-        body.dark {
-            --color-grey: #ffffff;
-            --color-white: #333333;
-            background: #121212;
-            color: var(--color-grey);
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-        #typewriter {
-            display: inline;
-        }
-
-        .page-wrapper {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-        }
-    </style>
 </head>
 
 <body>
