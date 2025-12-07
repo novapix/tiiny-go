@@ -23,3 +23,4 @@ node_modules
 
 # Go workspace file
 go.work
+tiiny-go
